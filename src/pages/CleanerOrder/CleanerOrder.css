@@ -1,0 +1,323 @@
+.session-expired-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  .popup-content h2 {
+    color: red;
+    font-weight: 400;
+  }
+  
+  .popup-content button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  .cleaner-order-container{
+    background-color: #FAFAFA;
+  }
+  .site-data-container{
+    background-color: #1C3B9A;
+    height: 28.7vh;
+    padding: 1rem 2.5rem;
+    border-bottom-left-radius: 2rem;
+    border-bottom-right-radius: 2rem;
+  }
+  .site{
+    margin-top: 2.5vh;
+  }
+  .site h1{
+    color: white;
+    font-size: 1.75rem;
+    font-weight: 700;;
+  }
+  .site p{
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 400;
+    width: 70%;
+  }
+  .date-display{
+    display: flex;
+    align-items: center;
+    margin-top: 2vh;
+  }
+  .date-display p{
+    color: white;
+    font-size: 1rem;
+    font-weight: 400;
+    margin-left: 0.25rem;
+  }
+  .cleaner-email{
+    color: white;
+    font-size: 1rem;
+    font-weight: 400;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cleaner-email input {
+    padding: 8px;
+    border: 1px solid #D9D9D9;
+    border-radius: 0.7rem;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+  }
+
+  .product-list{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2.5vh;
+    gap: 1rem;
+  }
+  .product-tile{
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1rem;
+    width: 85%;
+    box-shadow: 0px 0px 1.5px 0px #00000040;
+    border-radius: 0.625rem;
+    background-color: white;
+  }
+  .product-initial-info{
+    display: flex;
+
+  }
+  .product-image{
+    width: 8rem;
+    height: 8rem;
+    border-radius: 0.5rem;
+  }
+  .product-info h3{
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+  .product-info p{
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #ACAFB5;
+  }
+  .product-quantity-container{
+    width: 6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-left: auto;
+    margin-top: 2vh;
+  }
+  .quantity-btn{
+    background-color: transparent;
+    border: 1px solid black;
+    border-radius: 50%;
+    padding: 0.3rem 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .quantity-logo{
+    font-size: 1rem;
+  }
+  .expanded-line{
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #00000040;
+    margin-top: 2vh;
+  }
+  .expanded-first-row{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .expanded-first-row p{
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: black;
+  }
+  .yes-no-container{
+    display: flex;
+    justify-content: space-between;
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1.25vh;
+  }
+  .yes-no-btn{
+    background: #D9D9D9;
+    width: 3rem;
+    border: none;
+    color: black;
+    font-size: 0.75rem;
+  }
+  .yes-no-btn.active {
+    background-color: #313131; /* Highlight color */
+    border-color: #313131;
+    color: white;
+  }
+  .upload-photo-container{
+    margin-top: 1vh;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .upload-photo-container p{
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: black;
+  }
+  .upload-photo-container button{
+    margin-top: 1vh;
+    background-color: #012CC6;
+    border: 1px solid #012CC6;
+    color: white;
+    border: none;
+    padding: 0.625rem;
+    border-radius: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+  }
+  .camera-popup{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .camera-container{
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 90%;
+    height: 40vh;
+  }
+  .camera{
+    width: 100%;
+  }
+  .camera-button{
+    margin-top: 1rem;
+    padding: 10px 15px;
+    background: #012CC6;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+  .image-preview-container{
+    margin-top: 1vh;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .image-preview-container p{
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: black;
+  }
+  .image-preview{
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .image-preview img{
+    width: 38.5vw;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0.5rem;
+  }
+  .upload-room-photo-container{
+    margin-top: 1vh;
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1rem;
+    box-shadow: 0px 0px 1.5px 0px #00000040;
+    border-radius: 0.625rem;
+    background-color: white;
+  }
+  .upload-room-photo-container p{
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: black;
+  }
+  .capture-button{
+    margin-top: 1vh;
+    background-color: #012CC6;
+    border: 1px solid #012CC6;
+    color: white;
+    border: none;
+    padding: 0.625rem;
+    border-radius: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .room-image-preview-container{
+    margin-top: 1vh;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+    .room-image-preview-container p{
+        font-size: 0.875rem;
+        font-weight: 400;
+        color: black;
+    }
+.room-image-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+.room-image{
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+
+
+
+  
+  
