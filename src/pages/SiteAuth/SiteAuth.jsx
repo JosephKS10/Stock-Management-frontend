@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/CleanerAuthContext";
 import { useNavigate } from "react-router-dom";
+import { authenticateSite } from "../../utils/api";
 import "./SiteAuth.css";
 
 function SiteAuth() {
@@ -75,26 +76,12 @@ function SiteAuth() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:5001/api/sites/authenticate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ site_name: siteName, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        const currentTime = Date.now();
-        localStorage.setItem("login_time", currentTime);
-        login(data.auth_token, data.site_id);
-        navigate("/cleaner-order");
-      } else {
-        setError(data.message || "Authentication failed");
-      }
+      const data = await authenticateSite(siteName, password);
+      localStorage.setItem("login_time", Date.now());
+      login(data.auth_token, data.site_id);
+      navigate("/cleaner-order");
     } catch (error) {
-      setError("Server error. Please try again.");
+      setError(error.message);
     }
   };
 

@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import "./CleanerOrder.css";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { FaPlus, FaMinus } from "react-icons/fa6";
+import { fetchSiteData, fetchProductData } from "../../utils/api"; // Import the utility functions
+
 
 function CleanerOrder() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -58,17 +60,20 @@ function CleanerOrder() {
       return;
     }
 
-    fetch(`http://localhost:5001/api/sites/${siteId}`, {
-      headers: { Authorization: `Bearer ${authToken}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    const getSiteData = async () => {
+      try {
+        const data = await fetchSiteData(siteId, authToken); // Use the utility function
         setSiteData(data);
+
         if (data.product_list.length > 0) {
           fetchProducts(data.product_list);
         }
-      })
-      .catch((err) => console.error("Error fetching site data:", err));
+      } catch (error) {
+        console.error("Error fetching site data:", error);
+      }
+    };
+
+    getSiteData();
   }, [authToken, siteId]);
 
   useEffect(() => {
@@ -135,20 +140,7 @@ function CleanerOrder() {
 
   const fetchProducts = async (productIds) => {
     try {
-      const response = await fetch("http://localhost:5001/api/products/list", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ product_ids: productIds }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch product data");
-      }
-
-      const data = await response.json();
+      const data = await fetchProductData(productIds, authToken); // Use the utility function
       setProductData(
         data.map((product) => ({
           ...product,
@@ -160,7 +152,7 @@ function CleanerOrder() {
         }))
       );
     } catch (error) {
-      console.error("Error fetching product data:", error);
+      console.error("Error fetching product data:", error.message);
     }
   };
 
