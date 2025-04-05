@@ -2,9 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../context/CleanerAuthContext";
 import { useNavigate } from "react-router-dom";
 import "./CleanerOrder.css";
-import { MdOutlineCalendarToday } from "react-icons/md";
+import { MdOutlineCalendarToday, MdOutlineVerified } from "react-icons/md";
 import { FaPlus, FaMinus } from "react-icons/fa6";
-import { fetchSiteData, fetchProductData } from "../../utils/api"; // Import the utility functions
+import { fetchSiteData, fetchProductData, uploadImageToS3, createCleanerOrder } from "../../utils/api"; // Import the utility functions
 
 
 function CleanerOrder() {
@@ -29,6 +29,10 @@ function CleanerOrder() {
   const canvasRef = useRef(null);
   const [currentProductIndex, setCurrentProductIndex] = useState(null);
 
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [orderResponse, setOrderResponse] = useState(null);
 
 
   // validation and Error handling
@@ -232,7 +236,9 @@ function CleanerOrder() {
     );
   }
 
-  const handlePlaceOrder = () => {
+
+
+  const handlePlaceOrder = async () => {
     let newErrors = {};
     let isValid = true;
   
@@ -264,22 +270,85 @@ function CleanerOrder() {
         }
         return product;
       })
-      .filter((product) => product.quantity > 0); // Remove products where quantity is 0
+      .filter((product) => product.quantity > 0);
   
     setErrors(newErrors);
   
     if (isValid) {
-      console.log("Final order data:", {
-        cleanerEmail,
-        roomImages,
-        products: updatedProductData,
-      });
+      try {
+        setIsSubmitting(true);
+        setUploadProgress(0);
   
-      // Proceed with order submission
+        // Calculate total images to upload
+        const productImagesTotal = updatedProductData.reduce(
+          (total, product) => total + product.images.length, 0
+        );
+        const totalImages = roomImages.length + productImagesTotal;
+        let uploadedCount = 0;
+  
+        // 1. First upload room photos
+        const roomImageUrls = [];
+        for (let i = 0; i < roomImages.length; i++) {
+          const response = await uploadImageToS3(roomImages[i], 'room-photos', authToken);
+          roomImageUrls.push(response.imageUrl);
+          uploadedCount++;
+          setUploadProgress(Math.round((uploadedCount / totalImages) * 100));
+        }
+  
+        // 2. Upload product photos
+        const productsWithUrls = await Promise.all(
+          updatedProductData.map(async (product) => {
+            const imageUrls = [];
+            for (const img of product.images) {
+              const response = await uploadImageToS3(img, 'product-photos', authToken);
+              imageUrls.push(response.imageUrl);
+              uploadedCount++;
+              setUploadProgress(Math.round((uploadedCount / totalImages) * 100));
+            }
+            return {
+              ...product,
+              item_photos: imageUrls
+            };
+          })
+        );
+  
+        // 3. Submit final order
+        const orderData = {
+          site_info: {
+            site_id: siteData._id,
+            site_name: siteData.site_name,
+            organization_name: siteData.organization_name,
+            location: siteData.location,
+          },
+          cleaner_email: cleanerEmail,
+          order_items: productsWithUrls.map(p => ({
+            product_id: p._id,
+            product_name: p.product_name,
+            product_image: p.product_image,
+            product_type: p.product_type,
+            quantity: p.quantity,
+            item_available_on_site: p.availableQuantity,
+            item_already_on_site: p.siteItems,
+            item_photos: p.item_photos
+          })),
+          cleaner_room_photos: roomImageUrls
+        };
+  
+        console.log(orderData);
+        const orderResponse = await createCleanerOrder(orderData, authToken);
+        setOrderResponse(orderResponse);
+        setOrderSuccess(true);
+     
+        
+      } catch (error) {
+        console.error("Order submission failed:", error);
+        setErrors({ submit: error.message });
+      } finally {
+        setIsSubmitting(false);
+        setUploadProgress(0);
+      }
     }
   };
-
-
 
 
   return (
@@ -288,6 +357,7 @@ function CleanerOrder() {
         <div className="site-data-container">
           <div className="time-display siteTimer" style={{ color: "#FFFFFF" }}>{currentTime}</div>
           <div className="site">
+            <div className="details">
             {siteData ? (
               <>
                 <h1>{siteData.organization_name}</h1>
@@ -296,6 +366,11 @@ function CleanerOrder() {
             ) : (
               <h1>Loading...</h1>
             )}
+            </div>
+            <div className="logout-btn">
+              <button className="logout-button" onClick={handleLogout}>Logout</button>
+            </div>
+           
           </div>
           <div className="date-display" style={{ color: "#FFFFFF" }}>
             <MdOutlineCalendarToday style={{ fontSize: "1.1rem" }} />
@@ -309,6 +384,7 @@ function CleanerOrder() {
                 )} 
           </div>
         </div>
+        
       </div>
 
       <div className="product-list">
@@ -335,14 +411,14 @@ function CleanerOrder() {
                         <p>Items already on site</p>
                         <div className="yes-no-container">
                           <button
-                            onClick={() => handleSiteItemsChange(index, "yes")}
-                            className={`yes-no-btn ${productData[index].siteItems === "yes" ? "active" : ""}`}
+                            onClick={() => handleSiteItemsChange(index, "true")}
+                            className={`yes-no-btn ${productData[index].siteItems === "true" ? "active" : ""}`}
                           >
                             Yes
                           </button>
                           <button
-                            onClick={() => handleSiteItemsChange(index, "no")}
-                            className={`yes-no-btn ${productData[index].siteItems === "no" ? "active" : ""}`}
+                            onClick={() => handleSiteItemsChange(index, "false")}
+                            className={`yes-no-btn ${productData[index].siteItems === "false" ? "active" : ""}`}
                           >
                             No
                           </button>
@@ -475,9 +551,49 @@ function CleanerOrder() {
   </div>
 )}
 
-
+      <div className="submit-btn-container">
       <button className="submit-button" onClick={handlePlaceOrder}>Place order</button>
-      <button className="logout-button" onClick={handleLogout}>Logout</button>
+      </div>
+
+          {isSubmitting && (
+      <div className="upload-progress-container">
+        <div className="upload-progress-bar-container">
+          <div 
+            className="upload-progress-bar" 
+            style={{ width: `${uploadProgress}%` }}
+          ></div>
+        </div>
+        <div className="upload-progress-text">
+          <div className="upload-progress-spinner"></div>
+          Uploading {Math.round(uploadProgress)}% complete
+        </div>
+      </div>
+    )}
+
+{orderSuccess && (
+  <div className="order-confirmation-popup">
+    <div className="popup-content">
+      <div className="success-icon"><MdOutlineVerified/></div>
+      <h1>Order Placed Successfully</h1>
+      <div className="order-details">
+        <p><strong>Order ID:</strong> {orderResponse.order._id}</p>
+        <p><strong>Status:</strong> {(orderResponse.order.order_status).toUpperCase()}</p>
+      </div>
+
+      <div className="popup-actions">
+        <button 
+          className="popup-button secondary"
+          onClick={() => {
+            setOrderSuccess(false);
+            navigate(0);
+          }}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {sessionExpired && (
         <div className="session-expired-popup">
