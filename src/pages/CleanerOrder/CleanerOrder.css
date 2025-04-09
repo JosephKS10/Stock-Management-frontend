@@ -471,6 +471,57 @@
   color: white;
 }
 
+.camera-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.camera-switch-button {
+  background: rgba(0, 0, 0, 1);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 2vh;
+}
+
+.camera-switch-button:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.camera-switch-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.camera-button {
+  padding: 0.75rem 1.5rem;
+  background: #012CC6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.camera-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.camera-button:hover:not(:disabled) {
+  background: #3a5691;
+}
+
 
 
 

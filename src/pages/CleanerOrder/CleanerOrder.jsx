@@ -34,6 +34,8 @@ function CleanerOrder() {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderResponse, setOrderResponse] = useState(null);
 
+  const [currentCamera, setCurrentCamera] = useState('environment'); 
+  const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
 
   // validation and Error handling
   const [errors, setErrors] = useState({});
@@ -41,6 +43,21 @@ function CleanerOrder() {
   const handleCleanerEmailChange = (event) => {
     setCleanerEmail(event.target.value);
 };
+
+
+useEffect(() => {
+  const checkCameras = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      setHasMultipleCameras(videoDevices.length > 1);
+    } catch (error) {
+      console.error("Error enumerating devices:", error);
+    }
+  };
+  
+  checkCameras();
+}, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -83,20 +100,33 @@ function CleanerOrder() {
   useEffect(() => {
     if (showCameraPopup) {
       navigator.mediaDevices
-        .getUserMedia({ video: true })
+        .getUserMedia({ 
+          video: { facingMode: currentCamera } 
+        })
         .then((stream) => {
           setVideoStream(stream);
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
           }
         })
-        .catch((err) => console.error("Camera access error:", err));
+        .catch((err) => {
+          console.error("Camera access error:", err);
+          // Fallback to default camera if preferred fails
+          navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+              setVideoStream(stream);
+              if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+              }
+            })
+            .catch((fallbackErr) => console.error("Fallback camera error:", fallbackErr));
+        });
     } else {
       if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop()); // Stop camera
+        videoStream.getTracks().forEach(track => track.stop());
       }
     }
-  }, [showCameraPopup]);
+  }, [showCameraPopup, currentCamera]); 
 
   const handleCaptureImage = () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -350,6 +380,43 @@ function CleanerOrder() {
     }
   };
 
+  const toggleCamera = async () => {
+    try {
+      // Stop the current stream
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
+  
+      // Get the new camera
+      const newCamera = currentCamera === 'user' ? 'environment' : 'user';
+      setCurrentCamera(newCamera);
+  
+      // Start the new stream
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: newCamera }
+      });
+      
+      setVideoStream(stream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error("Error switching camera:", error);
+      // Fallback to default camera if switching fails
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true
+        });
+        setVideoStream(stream);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (fallbackError) {
+        console.error("Fallback camera error:", fallbackError);
+      }
+    }
+  };
+
 
   return (
     <div className="cleaner-order-container">
@@ -521,32 +588,47 @@ function CleanerOrder() {
       <video ref={videoRef} autoPlay playsInline className="camera"></video>
       <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
 
-      <button
-        onClick={handleCaptureImage}
-        disabled={
-          isRoomImageCapture
-            ? roomImages.length >= 5 // Disable if room images reach 5
-            : capturedProductImages.length >= 2 // Disable if product images reach 2
-        }
-        className="camera-button"
-      >
-        Capture
-      </button>
+      <div className="camera-controls">
+              {hasMultipleCameras && (
+          <button
+            onClick={toggleCamera}
+            className="camera-switch-button"
+            title="Switch Camera"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+              <path d="M12 17l1.25-2.75L16 13l-2.75-1.25L12 9l-1.25 2.75L8 13l2.75 1.25z"/>
+            </svg>
+          </button>
+        )}
 
-      <button
-        onClick={() => {
-          setShowCameraPopup(false);
-          if (isRoomImageCapture) {
-            setIsRoomImageCapture(false); // Reset room image capture flag
-          } else {
-            setCurrentProductIndex(null); // Reset product index
+        <button
+          onClick={handleCaptureImage}
+          disabled={
+            isRoomImageCapture
+              ? roomImages.length >= 5
+              : capturedProductImages.length >= 2
           }
-        }}
-        className="camera-button"
-        style={{ backgroundColor: "#D9D9D9", color: "#000", marginLeft: "1rem" }}
-      >
-        Done
-      </button>
+          className="camera-button"
+        >
+          Capture
+        </button>
+
+        <button
+          onClick={() => {
+            setShowCameraPopup(false);
+            if (isRoomImageCapture) {
+              setIsRoomImageCapture(false);
+            } else {
+              setCurrentProductIndex(null);
+            }
+          }}
+          className="camera-button"
+          style={{ backgroundColor: "#D9D9D9", color: "#000" }}
+        >
+          Done
+        </button>
+      </div>
     </div>
   </div>
 )}
