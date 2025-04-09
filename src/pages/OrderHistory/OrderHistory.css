@@ -1,0 +1,9 @@
+.tag-accepted {
+    background: #4CAF50;
+    color: white;
+  }
+  
+  .tag-rejected {
+    background: #f44336;
+    color: white;
+  }

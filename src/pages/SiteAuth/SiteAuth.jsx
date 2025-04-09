@@ -39,9 +39,9 @@ function SiteAuth() {
     if (storedToken && storedLoginTime) {
       const loginTime = parseInt(storedLoginTime);
       const currentTime = Date.now();
-      const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+      const sixHours = 6 * 60 * 60 * 1000; // 6 hour in milliseconds
 
-      if (currentTime - loginTime < oneHour) {
+      if (currentTime - loginTime < sixHours) {
         // Token is still valid, redirect to Cleaner Order page
         navigate("/cleaner-order");
       } else {

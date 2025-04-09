@@ -120,3 +120,187 @@ export const createCleanerOrder = async (orderData, authToken) => {
     throw new Error(error.message);
   }
 };
+
+export const authenticateAdmin = async (username, password) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Authentication failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const getActiveOrders = async (authToken) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/active`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch orders");
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const getOrderDetails = async (orderNumber, authToken) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/${orderNumber}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch order details");
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const getLastThreeOrders = async (site_id, order_date, authToken) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/last-three-orders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({ site_id, order_date }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to fetch last 3 orders");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in getLastThreeOrders:", error);
+    throw new Error(error.message || "Failed to fetch order history");
+  }
+};
+
+export const updateOrderStatus = async (order_id, reason, delivery_date = '', authToken) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/update-status`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({ 
+        order_id, 
+        reason,
+        delivery_date 
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update order status");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in updateOrderStatus:", error);
+    throw new Error(error.message || "Failed to update order status");
+  }
+};
+
+export const updateNotes = async (order_number, notes, authToken) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/update-notes`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({ 
+        order_number, 
+        notes 
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update order notes");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in updateNotes:", error);
+    throw new Error(error.message || "Failed to update order notes");
+  }
+};
+
+export const updateDeliveryDate = async (order_number, delivery_date, authToken) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/update-delivery-date`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({ 
+        order_number, 
+        delivery_date 
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update delivery date");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in updateDeliveryDate:", error);
+    throw new Error(error.message || "Failed to update delivery date");
+  }
+};
+
+export const getOrderHistory = async (authToken) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/completed`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to fetch order history");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in getOrderHistory:", error);
+    throw new Error(error.message || "Failed to fetch order history");
+  }
+};
